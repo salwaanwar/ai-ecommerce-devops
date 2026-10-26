@@ -1,0 +1,88 @@
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    triggers { pollSCM('H/2 * * * *') }
+
+    environment {
+        DOCKERHUB_USER = 'salwaanwer'
+        IMAGE_NAME     = 'nexvion-ecommerce'
+        APP_PORT       = '8082'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                bat 'git log -1 --oneline'
+            }
+        }
+
+        stage('Validate') {
+            parallel {
+                stage('JS Syntax Check') {
+                    steps {
+                        bat 'docker run --rm -v "%WORKSPACE%\\application:/app" -w /app node:20-alpine sh -c "for f in *.js; do node --check $f || exit 1; done"'
+                    }
+                }
+                stage('Dockerfile Lint') {
+                    steps {
+                        bat 'docker run --rm -i hadolint/hadolint hadolint --failure-threshold warning - < docker\\Dockerfile'
+                    }
+                }
+            }
+        }
+
+        stage('Secret Scan') {
+            steps {
+                bat 'docker run --rm -v "%WORKSPACE%:/repo" zricethezav/gitleaks:latest detect --source=/repo --no-git --redact'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                bat 'docker build -f docker\\Dockerfile -t %DOCKERHUB_USER%/%IMAGE_NAME%:%BUILD_NUMBER% -t %DOCKERHUB_USER%/%IMAGE_NAME%:latest .'
+            }
+        }
+
+        stage('Image Scan') {
+            steps {
+                // exit-code 0 = report only. Change to 1 to fail the build on HIGH/CRITICAL findings.
+                bat 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/ aquasec/trivy:latest image --severity HIGH,CRITICAL --exit-code 0 --no-progress %DOCKERHUB_USER%/%IMAGE_NAME%:%BUILD_NUMBER%'
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DH_USER', passwordVariable: 'DH_PASS')]) {
+                    bat 'echo %DH_PASS%| docker login -u %DH_USER% --password-stdin'
+                    bat 'docker push %DOCKERHUB_USER%/%IMAGE_NAME%:%BUILD_NUMBER%'
+                    bat 'docker push %DOCKERHUB_USER%/%IMAGE_NAME%:latest'
+                    bat 'docker logout'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                bat 'docker compose -f docker\\docker-compose.yml up -d --build'
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                bat 'curl.exe -f --retry 5 --retry-delay 2 --retry-connrefused http://localhost:%APP_PORT%/health'
+            }
+        }
+    }
+
+    post {
+        success { echo "Deployment successful: build #${env.BUILD_NUMBER}" }
+        failure { echo "Pipeline failed. Check the stage logs above." }
+    }
+}
