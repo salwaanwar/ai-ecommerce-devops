@@ -5,3 +5,5 @@
 *.pem
 node_modules/
 *.log
+backups/
+logs/
