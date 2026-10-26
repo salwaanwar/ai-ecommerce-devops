@@ -1,0 +1,18 @@
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: nexvion-ecommerce:local
+    container_name: nexvion-web
+    ports:
+      - "${APP_PORT:-8082}:8080"
+    environment:
+      - APP_ENV=development
+    restart: unless-stopped
+    networks:
+      - ecommerce-net
+
+networks:
+  ecommerce-net:
+    driver: bridge
