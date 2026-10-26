@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-URL="${1:-http://localhost:8080/health}"
+URL="${1:-http://localhost:${APP_PORT:-8082}/health}"
 RETRIES=5
 
 for i in $(seq 1 $RETRIES); do
