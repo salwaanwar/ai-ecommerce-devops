@@ -1,9 +1,12 @@
-.terraform/
+*.log
+*.pem
 *.tfstate*
 *.tfvars
 .env
-*.pem
-node_modules/
-*.log
+.terraform/
 backups/
 logs/
+node_modules/
+terraform/.terraform.lock.hcl.bak
+terraform/environments/dev.tfvars
+ansible/target/authorized_keys

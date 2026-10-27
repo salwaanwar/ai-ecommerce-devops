@@ -1,0 +1,18 @@
+app_user: appuser
+app_dir: /opt/ecommerce
+app_port: 8082
+app_env: production
+dockerhub_user: salwaanwer
+image_name: nexvion-ecommerce
+
+
+base_packages:
+  - curl
+  - git
+  - vim
+  - htop
+  - unzip
+
+# Docker is only installed on real servers/VMs, not inside the local test container
+is_container: false
+install_docker: "{{ not (is_container | bool) }}"

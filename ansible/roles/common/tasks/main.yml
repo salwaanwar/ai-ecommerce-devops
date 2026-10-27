@@ -1,0 +1,42 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name: "{{ base_packages }}"
+    state: present
+
+- name: Create application user (no login shell needed, no sudo)
+  ansible.builtin.user:
+    name: "{{ app_user }}"
+    shell: /usr/sbin/nologin
+    create_home: false
+    system: true
+
+- name: Create application directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0755"
+  loop:
+    - "{{ app_dir }}"
+    - "{{ app_dir }}/logs"
+    - "{{ app_dir }}/backups"
+
+- name: Apply SSH hardening (drop-in config)
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/99-hardening.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      PermitRootLogin no
+      PasswordAuthentication no
+      X11Forwarding no
+      MaxAuthTries 3
+  notify: Reload sshd
