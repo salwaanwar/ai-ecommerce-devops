@@ -1,0 +1,8 @@
+---
+- name: Configure e-commerce application server
+  hosts: web
+  become: true
+  roles:
+    - common
+    - docker
+    - app
