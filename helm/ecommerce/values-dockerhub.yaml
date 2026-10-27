@@ -1,0 +1,4 @@
+image:
+  repository: your_real_dockerhub_name/nexvion-ecommerce
+  tag: latest
+  pullPolicy: Always
