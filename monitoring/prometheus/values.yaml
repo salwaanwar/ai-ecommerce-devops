@@ -1,0 +1,31 @@
+alertmanager:
+  enabled: false
+
+prometheus:
+  prometheusSpec:
+    retention: 2d
+    resources:
+      requests:
+        cpu: 100m
+        memory: 400Mi
+      limits:
+        memory: 900Mi
+    serviceMonitorSelectorNilUsesHelmValues: false
+
+grafana:
+  adminPassword: admin123        # lab only; use a secret in real environments
+  resources:
+    requests:
+      memory: 128Mi
+    limits:
+      memory: 600Mi
+
+# kind doesn't expose these control-plane endpoints, so disable to avoid false "down" targets
+kubeEtcd:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeProxy:
+  enabled: false

@@ -1,0 +1,34 @@
+replicaCount: 2
+
+image:
+  repository: nexvion-ecommerce
+  tag: kind
+  pullPolicy: IfNotPresent
+
+config:
+  APP_ENV: kubernetes
+  APP_NAME: nexvion
+
+# DEMO placeholder only. Never commit real secrets.
+secret:
+  APP_SECRET_KEY: demo-placeholder-not-a-real-secret
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: traefik
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 32Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+metrics:
+  enabled: true
+  exporterImage: nginx/nginx-prometheus-exporter:1.3.0
