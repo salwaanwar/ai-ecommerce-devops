@@ -1,0 +1,19 @@
+config:
+  outputs: |
+    [OUTPUT]
+        Name            es
+        Match           kube.*
+        Host            elasticsearch.logging.svc.cluster.local
+        Port            9200
+        Logstash_Format On
+        Logstash_Prefix kubernetes
+        Replace_Dots    On
+        Suppress_Type_Name On
+        Retry_Limit     False
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 32Mi
+  limits:
+    memory: 128Mi
