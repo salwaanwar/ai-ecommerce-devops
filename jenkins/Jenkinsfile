@@ -48,7 +48,7 @@ pipeline {
             steps {
                 bat 'if not exist security\\reports mkdir security\\reports'
                 bat 'docker run --rm -v "%WORKSPACE%:/repo" -v trivy-cache:/root/.cache/ aquasec/trivy:latest fs --scanners vuln,secret --severity HIGH,CRITICAL --exit-code 0 --no-progress /repo/application'
-                bat 'docker run --rm -v "%WORKSPACE%:/repo" -v trivy-cache:/root/.cache/ aquasec/trivy:latest config --severity HIGH,CRITICAL --exit-code 0 --no-progress /repo'
+                bat 'docker run --rm -v "%WORKSPACE%:/repo" -v trivy-cache:/root/.cache/ aquasec/trivy:latest config --severity HIGH,CRITICAL --exit-code 0 /repo'
             }
         }
 
