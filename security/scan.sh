@@ -20,7 +20,7 @@ docker run --rm -v "$PWD:/repo" -v trivy-cache:/root/.cache/ aquasec/trivy:lates
 
 echo "==> 3/4 Config scan: Dockerfile, Kubernetes, Helm, Terraform (Trivy config)"
 docker run --rm -v "$PWD:/repo" -v trivy-cache:/root/.cache/ aquasec/trivy:latest config \
-  --severity HIGH,CRITICAL --no-progress \
+  --severity HIGH,CRITICAL \
   --format table -o /repo/$OUT/trivy-config.txt /repo
 
 echo "==> 4/4 Container image scan (Trivy image: $IMAGE)"
