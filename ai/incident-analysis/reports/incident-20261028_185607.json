@@ -1,0 +1,19 @@
+[
+  {
+    "title": "Repeated HTTP 404 Not Found",
+    "severity": "Medium",
+    "category": "Client / routing",
+    "occurrences": 60,
+    "root_cause": "Requests for missing paths: broken links, a deleted page, or automated scanning.",
+    "remediation": [
+      "Fix or redirect broken links",
+      "Restore the missing page",
+      "Rate-limit or block abusive clients at the Ingress"
+    ],
+    "examples": [
+      "/missing-page-0  (20 requests)",
+      "/missing-page-2  (20 requests)",
+      "/missing-page-1  (20 requests)"
+    ]
+  }
+]

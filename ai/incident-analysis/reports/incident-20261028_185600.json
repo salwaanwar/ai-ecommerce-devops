@@ -1,0 +1,47 @@
+[
+  {
+    "title": "Database connectivity / timeout",
+    "severity": "High",
+    "category": "Database",
+    "occurrences": 4,
+    "root_cause": "Database connectivity or configuration issue: the database is down or overloaded, the network path is blocked, or the connection limit is reached.",
+    "remediation": [
+      "Restore or restart the database",
+      "Fix the connection string / Secret and redeploy",
+      "Add connection pooling and raise max_connections if exhausted"
+    ],
+    "examples": [
+      "2026-10-28T10:15:31Z ERROR [orders] Database connection timeout after 30000ms (host=mysql:3306)",
+      "2026-10-28T10:15:32Z ERROR [orders] Database connection timeout after 30000ms (host=mysql:3306)",
+      "2026-10-28T10:15:40Z ERROR [orders] Too many connections to MySQL (max_connections=151)"
+    ]
+  },
+  {
+    "title": "Database authentication failure",
+    "severity": "High",
+    "category": "Database",
+    "occurrences": 1,
+    "root_cause": "Wrong database credentials or a user without the required privileges.",
+    "remediation": [
+      "Update the Secret and restart the deployment",
+      "Rotate the credentials if exposed"
+    ],
+    "examples": [
+      "2026-10-28T10:16:20Z ERROR [orders] Access denied for user 'shop'@'10.244.0.9' (using password=<redacted>"
+    ]
+  },
+  {
+    "title": "Health probe failures",
+    "severity": "Medium",
+    "category": "Container lifecycle",
+    "occurrences": 1,
+    "root_cause": "The application is not answering /health in time: slow start, overload, or wrong probe settings.",
+    "remediation": [
+      "Increase initialDelaySeconds / timeoutSeconds",
+      "Raise CPU limits"
+    ],
+    "examples": [
+      "2026-10-28T10:16:10Z WARN  Readiness probe failed: HTTP probe failed with statuscode: 503"
+    ]
+  }
+]
