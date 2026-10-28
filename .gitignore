@@ -11,4 +11,3 @@ terraform/.terraform.lock.hcl.bak
 terraform/environments/dev.tfvars
 ansible/target/authorized_keys
 ai/incident-analysis/reports/incident-*
-ai/incident-analysis/reports/incident-*
