@@ -10,6 +10,7 @@ pipeline {
     triggers { pollSCM('H/2 * * * *') }
 
     environment {
+        PATH = "C:\\Tools;${env.PATH}"
         DOCKERHUB_USER = 'salwaanwer'
         IMAGE_NAME     = 'nexvion-ecommerce'
         APP_PORT       = '8082'
