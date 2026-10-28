@@ -10,6 +10,7 @@ pipeline {
     triggers { pollSCM('H/2 * * * *') }
 
     environment {
+        PATH = "C:\\Tools;${env.PATH}"
         DOCKERHUB_USER = 'salwaanwer'
         IMAGE_NAME     = 'nexvion-ecommerce'
         APP_PORT       = '8082'
@@ -48,7 +49,7 @@ pipeline {
             steps {
                 bat 'if not exist security\\reports mkdir security\\reports'
                 bat 'docker run --rm -v "%WORKSPACE%:/repo" -v trivy-cache:/root/.cache/ aquasec/trivy:latest fs --scanners vuln,secret --severity HIGH,CRITICAL --exit-code 0 --no-progress /repo/application'
-                bat 'docker run --rm -v "%WORKSPACE%:/repo" -v trivy-cache:/root/.cache/ aquasec/trivy:latest config --severity HIGH,CRITICAL --exit-code 0 --no-progress /repo'
+                bat 'docker run --rm -v "%WORKSPACE%:/repo" -v trivy-cache:/root/.cache/ aquasec/trivy:latest config --severity HIGH,CRITICAL --exit-code 0 /repo'
             }
         }
 
@@ -72,6 +73,16 @@ pipeline {
                     bat 'docker push %DOCKERHUB_USER%/%IMAGE_NAME%:%BUILD_NUMBER%'
                     bat 'docker push %DOCKERHUB_USER%/%IMAGE_NAME%:latest'
                     bat 'docker logout'
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                    bat 'helm upgrade --install nexvion helm\\ecommerce -n ecommerce --set image.repository=%DOCKERHUB_USER%/%IMAGE_NAME% --set image.tag=%BUILD_NUMBER% --set image.pullPolicy=Always --wait --timeout 4m'
+                    bat 'kubectl -n ecommerce rollout status deployment/nexvion --timeout=120s'
+                    bat 'kubectl -n ecommerce get pods'
                 }
             }
         }
